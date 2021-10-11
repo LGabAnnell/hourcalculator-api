@@ -10,4 +10,5 @@ import lombok.*;
 public class TimeRequest {
     private String date;
     private String time;
+    private String userToken;
 }

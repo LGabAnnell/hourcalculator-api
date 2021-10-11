@@ -6,9 +6,11 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 
 @Configuration
 public class HttpConfiguration extends WebSecurityConfigurerAdapter {
-    public void configxure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
-                .antMatchers("/**")
+    public void configure(HttpSecurity http) throws Exception {
+        http.cors().and().csrf().and()
+                .antMatcher("/hourcalculator/api/**")
+                .authorizeRequests()
+                .anyRequest()
                 .permitAll();
     }
 }
