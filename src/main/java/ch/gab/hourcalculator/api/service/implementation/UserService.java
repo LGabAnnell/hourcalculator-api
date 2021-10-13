@@ -16,8 +16,6 @@ import java.util.UUID;
 @Service
 public class UserService implements IUserService {
     @Autowired
-    BCryptPasswordEncoder pwEncoder;
-    @Autowired
     private UserRepository repo;
 
     @Override
@@ -44,7 +42,7 @@ public class UserService implements IUserService {
             throw new Exception("User already exists");
         }
         UUID uuid = UUID.randomUUID();
-        user.setPassword(pwEncoder.encode(user.getPassword()));
+        // user.setPassword(pwEncoder.encode(user.getPassword()));
         user.setUserToken(RandomString.make(10));
         System.out.println(uuid.toString());
         user.setUserToken(uuid.toString());
