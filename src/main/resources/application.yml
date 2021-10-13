@@ -1,7 +1,7 @@
 server:
   servlet:
     context-path: /hourcalculator/api
-  port: 3000
+  port: 3001
 
 gab:
   security:
