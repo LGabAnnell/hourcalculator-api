@@ -7,6 +7,7 @@ import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -15,6 +16,9 @@ import java.util.UUID;
 public class UserService implements IUserService {
     @Autowired
     private UserRepository repo;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public User getUserByUserName(String userName) {
@@ -39,7 +43,7 @@ public class UserService implements IUserService {
             throw new Exception("User already exists");
         }
         UUID uuid = UUID.randomUUID();
-        // user.setPassword(pwEncoder.encode(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setUserToken(RandomString.make(10));
         System.out.println(uuid.toString());
         user.setUserToken(uuid.toString());
