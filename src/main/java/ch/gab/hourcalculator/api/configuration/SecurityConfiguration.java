@@ -19,7 +19,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    @Autowired
     private BCryptPasswordEncoder pwEncoder;
 
     @Autowired
@@ -27,6 +26,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Value("${gab.security.key}")
     private String KEY;
+
+    public SecurityConfiguration(BCryptPasswordEncoder pwEncoder) {
+        this.pwEncoder = pwEncoder;
+    }
 
     public void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
