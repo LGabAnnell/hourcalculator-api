@@ -17,7 +17,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @EnableWebSecurity
-@Configuration
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
@@ -51,10 +50,5 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         var auth = new AuthenticationFilter(authenticationManager(), KEY);
         auth.setFilterProcessesUrl("/login");
         return auth;
-    }
-
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }
