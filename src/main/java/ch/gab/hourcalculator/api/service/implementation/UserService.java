@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UserService implements IUserService {
@@ -42,11 +43,14 @@ public class UserService implements IUserService {
         if (repo.findUserByUsername(user.getUsername()) != null) {
             throw new Exception("User already exists");
         }
-
+        UUID uuid = UUID.randomUUID();
         user.setPassword(pwEncoder.encode(user.getPassword()));
         user.setUserToken(RandomString.make(10));
+        System.out.println(uuid.toString());
+        user.setUserToken(uuid.toString());
         repo.save(user);
     }
+
 
     @Override
     public User findUserByUserToken(String userToken) {

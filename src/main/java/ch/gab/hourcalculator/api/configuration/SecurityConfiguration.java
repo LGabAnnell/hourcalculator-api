@@ -37,7 +37,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                     .anyRequest().authenticated()
                 .and()
-                    .addFilter(new AuthenticationFilter(authenticationManager(), KEY))
+                    .addFilter(authenticationFilter())
                     .addFilter(new AuthorizationFilter(authenticationManager(), KEY))
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
@@ -45,6 +45,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userService).passwordEncoder(pwEncoder);
+    }
+
+    public AuthenticationFilter authenticationFilter() throws Exception {
+        var auth = new AuthenticationFilter(authenticationManager(), KEY);
+        auth.setFilterProcessesUrl("/login");
+        return auth;
     }
 
     @Bean

@@ -15,4 +15,9 @@ public class TimeController {
     public ResponseEntity<Void> postTime(@RequestBody TimeRequest timeRequest) {
         return ResponseEntity.ok(null);
     }
+
+    @GetMapping("/test-auth")
+    public ResponseEntity<Void> testAuth() {
+        return ResponseEntity.ok(null);
+    }
 }
