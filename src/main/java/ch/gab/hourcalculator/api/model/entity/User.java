@@ -20,19 +20,18 @@ import java.util.List;
 @Builder
 public class User implements UserDetails {
     @Id
+    @Column(name = "USER_ID")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "USER_NAME")
+    @Column(name = "USER_NAME", unique = true)
     private String username;
 
-    @Column(name = "USER_TOKEN")
+    @Column(name = "USER_TOKEN", unique = true)
     private String userToken;
 
     @Column(name = "USER_PASSWORD")
     private String password;
-
-    // private List<SimpleGrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority("USER"));
 
     @Override
     public List<SimpleGrantedAuthority> getAuthorities() {

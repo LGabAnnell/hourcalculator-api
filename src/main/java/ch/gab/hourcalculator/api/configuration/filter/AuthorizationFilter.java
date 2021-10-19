@@ -48,7 +48,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
     }
 
     private UsernamePasswordAuthenticationToken authenticate(String token) {
-        if (token != null) {
+        if (token != null && token.length() > 0) {
             Claims user = Jwts.parser()
                     .setSigningKey(KEY.getBytes(StandardCharsets.UTF_8))
                     .parseClaimsJws(token)

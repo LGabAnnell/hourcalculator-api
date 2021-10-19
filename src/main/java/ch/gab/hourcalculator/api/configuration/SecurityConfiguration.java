@@ -3,6 +3,7 @@ package ch.gab.hourcalculator.api.configuration;
 import ch.gab.hourcalculator.api.configuration.filter.AuthenticationFilter;
 import ch.gab.hourcalculator.api.configuration.filter.AuthorizationFilter;
 import ch.gab.hourcalculator.api.service.api.IUserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -11,6 +12,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import javax.servlet.http.Cookie;
 
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
@@ -24,10 +27,19 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Value("${gab.security.key}")
     private String KEY;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     public void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
                 .authorizeRequests()
-                    .antMatchers("/users/new", "/users/login").permitAll()
+                    .antMatchers("/users/new", "/login", "/post-time").permitAll()
+                .and()
+                    .logout()
+                    .logoutSuccessHandler((req, res, auth) -> {
+                        res.addCookie(new Cookie("my-cookie", null));
+                        objectMapper.writeValue(res.getWriter(), "User is logged out!");
+                    })
                 .and()
                 .authorizeRequests()
                     .anyRequest().authenticated()

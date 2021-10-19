@@ -29,13 +29,6 @@ public class UserController {
         return ResponseEntity.status(201).build();
     }
 
-    @PostMapping("login")
-    public ResponseEntity<Void> login(@RequestBody User user, HttpServletRequest req) throws Exception {
-        System.out.println(req.getCookies());
-        log.debug(req.getCookies().toString());
-        return ResponseEntity.ok(null);
-    }
-
     @GetMapping("currentuser")
     public Object getCurrentUser() {
         return SecurityContextHolder.getContext().getAuthentication().getPrincipal();
