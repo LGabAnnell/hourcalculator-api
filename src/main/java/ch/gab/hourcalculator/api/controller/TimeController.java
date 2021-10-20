@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
-@RestController()
+@RestController
 public class TimeController {
     @Autowired
     private IUserService userService;
@@ -47,5 +47,10 @@ public class TimeController {
         String username = ((DefaultClaims) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
             .getSubject();
         return ResponseEntity.ok(userService.getUserClocks(username));
+    }
+
+    @PostMapping("/update-time")
+    public ResponseEntity<Void> updateUserClock(@RequestBody TimeRequest timeRequest) {
+        return ResponseEntity.ok(null);
     }
 }

@@ -101,4 +101,7 @@ public class UserService implements IUserService {
         return clocks.stream().map(ClockInOutConverter::fromEntity)
             .sorted(Comparator.comparing(ClockInOutDto::getTime)).collect(Collectors.toList());
     }
+
+    @Override
+    public void updateUserClock(TimeRequest request) throws Exception {}
 }

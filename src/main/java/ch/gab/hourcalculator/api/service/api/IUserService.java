@@ -21,4 +21,6 @@ public interface IUserService extends UserDetailsService {
     void insertUserClock(TimeRequest request);
 
     List<ClockInOutDto> getUserClocksByDate(String username, LocalDate date);
+
+    void updateUserClock(TimeRequest request) throws Exception;
 }
