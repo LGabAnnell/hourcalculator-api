@@ -84,8 +84,8 @@ public class UserService implements IUserService {
     public void insertUserClock(TimeRequest request) {
         User user = repo.findUserByUserToken(request.getUserToken());
         ClockInOut clockInOut = ClockInOut.builder()
-            .date(LocalDate.parse(request.getDate(), DateTimeFormatter.ofPattern("yyyy.MM.dd")))
-            .time(LocalTime.parse(request.getTime(), DateTimeFormatter.ofPattern("HH:mm:ss")))
+            .date(LocalDate.parse(request.getDate(), DateTimeFormatter.ofPattern("dd.MM.yy")))
+            .time(LocalTime.parse(request.getTime(), DateTimeFormatter.ofPattern("HH.mm")))
             .user(user)
             .build();
 

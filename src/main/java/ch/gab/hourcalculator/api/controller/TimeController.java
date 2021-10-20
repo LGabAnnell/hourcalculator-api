@@ -25,7 +25,6 @@ public class TimeController {
 
     @PostMapping("/post-time")
     public ResponseEntity<Void> postTime(@RequestBody TimeRequest timeRequest) {
-        System.out.println(timeRequest.toString());
         userService.insertUserClock(timeRequest);
         return ResponseEntity.ok(null);
     }
