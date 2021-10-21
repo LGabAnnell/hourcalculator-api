@@ -5,16 +5,15 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Data
-public class TimeUpdateRequest {
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate date;
+public class TimeUpdateListRequest {
 
     @DateTimeFormat(pattern = "HH:mm")
-    private LocalTime time;
-
-    private Long id;
-
+    private List<LocalTime> times;
     private String userToken;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate date;
 }

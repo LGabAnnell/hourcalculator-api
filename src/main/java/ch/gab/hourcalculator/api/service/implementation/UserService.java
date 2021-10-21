@@ -4,14 +4,18 @@ import ch.gab.hourcalculator.api.exception.EntityAlreadyExistsException;
 import ch.gab.hourcalculator.api.model.converter.ClockInOutConverter;
 import ch.gab.hourcalculator.api.model.dto.ClockInOutDto;
 import ch.gab.hourcalculator.api.model.dto.TimeRequest;
+import ch.gab.hourcalculator.api.model.dto.TimeUpdateListRequest;
+import ch.gab.hourcalculator.api.model.dto.TimeUpdateRequest;
 import ch.gab.hourcalculator.api.model.entity.ClockInOut;
 import ch.gab.hourcalculator.api.model.entity.User;
 import ch.gab.hourcalculator.api.repository.ClockInOutRepository;
 import ch.gab.hourcalculator.api.repository.UserRepository;
 import ch.gab.hourcalculator.api.service.api.IUserService;
+import io.jsonwebtoken.impl.DefaultClaims;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,9 +24,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -103,5 +105,39 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void updateUserClock(TimeRequest request) throws Exception {}
+    public void updateUserClock(TimeUpdateRequest request) throws Exception {
+        var entity = clockInOutRepository.findById(request.getId())
+            .orElseThrow(() -> new Exception(String.format("Entity with ID %s does not exist", request.getId())));
+        entity.setDate(request.getDate());
+        entity.setTime(request.getTime());
+        clockInOutRepository.save(entity);
+    }
+
+    @Override
+    public List<ClockInOutDto> getAll() {
+        return clockInOutRepository.findAll().stream().map(ClockInOutConverter::fromEntity)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateUserClocks(TimeUpdateListRequest request) throws Exception {
+        var entities = clockInOutRepository.findAll(Example.of(
+            ClockInOut.builder().
+                user(User.builder().userToken(request.getUserToken()).build())
+                .date(request.getDate())
+                .build()
+        ));
+
+        clockInOutRepository.deleteAll(entities);
+
+        var user = repo.findUserByUsername(
+            ((DefaultClaims) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+                .getSubject());
+
+        List<ClockInOut> newEntities = request.getTimes().stream().map(
+            time -> ClockInOut.builder()
+                .date(request.getDate()).time(time)
+                .user(user).build()).collect(Collectors.toList());
+        clockInOutRepository.saveAllAndFlush(newEntities);
+    }
 }

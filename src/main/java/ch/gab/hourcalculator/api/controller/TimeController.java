@@ -2,6 +2,8 @@ package ch.gab.hourcalculator.api.controller;
 
 import ch.gab.hourcalculator.api.model.dto.ClockInOutDto;
 import ch.gab.hourcalculator.api.model.dto.TimeRequest;
+import ch.gab.hourcalculator.api.model.dto.TimeUpdateListRequest;
+import ch.gab.hourcalculator.api.model.dto.TimeUpdateRequest;
 import ch.gab.hourcalculator.api.service.api.IUserService;
 import io.jsonwebtoken.impl.DefaultClaims;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +51,20 @@ public class TimeController {
         return ResponseEntity.ok(userService.getUserClocks(username));
     }
 
-    @PostMapping("/update-time")
-    public ResponseEntity<Void> updateUserClock(@RequestBody TimeRequest timeRequest) {
+    @PutMapping("/update-time")
+    public ResponseEntity<Void> updateUserClock(@RequestBody TimeUpdateRequest timeRequest) throws Exception {
+        userService.updateUserClock(timeRequest);
         return ResponseEntity.ok(null);
+    }
+
+    @PutMapping("/update-times")
+    public ResponseEntity<Void> updateUserClocks(@RequestBody TimeUpdateListRequest timeRequest) throws Exception {
+        userService.updateUserClocks(timeRequest);
+        return ResponseEntity.ok(null);
+    }
+
+    @GetMapping("all")
+    public ResponseEntity<List<ClockInOutDto>> getAll() {
+        return ResponseEntity.ok(userService.getAll());
     }
 }
