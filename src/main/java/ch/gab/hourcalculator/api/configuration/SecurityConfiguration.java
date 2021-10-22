@@ -33,7 +33,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
                 .authorizeRequests()
-                    .antMatchers("/users/new", "/login", "/post-time").permitAll()
+                    .antMatchers("/users/new", "/login", "/post-time")
+                    .permitAll()
                 .and()
                     .logout()
                     .logoutSuccessHandler((req, res, auth) -> {

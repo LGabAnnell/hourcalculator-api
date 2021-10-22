@@ -1,6 +1,7 @@
 package ch.gab.hourcalculator.api.model.dto;
 
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

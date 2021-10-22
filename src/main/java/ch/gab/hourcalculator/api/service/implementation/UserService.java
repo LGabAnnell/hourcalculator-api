@@ -2,10 +2,7 @@ package ch.gab.hourcalculator.api.service.implementation;
 
 import ch.gab.hourcalculator.api.exception.EntityAlreadyExistsException;
 import ch.gab.hourcalculator.api.model.converter.ClockInOutConverter;
-import ch.gab.hourcalculator.api.model.dto.ClockInOutDto;
-import ch.gab.hourcalculator.api.model.dto.TimeRequest;
-import ch.gab.hourcalculator.api.model.dto.TimeUpdateListRequest;
-import ch.gab.hourcalculator.api.model.dto.TimeUpdateRequest;
+import ch.gab.hourcalculator.api.model.dto.*;
 import ch.gab.hourcalculator.api.model.entity.ClockInOut;
 import ch.gab.hourcalculator.api.model.entity.User;
 import ch.gab.hourcalculator.api.repository.ClockInOutRepository;
@@ -21,9 +18,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
+import java.time.temporal.WeekFields;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -122,8 +122,8 @@ public class UserService implements IUserService {
     @Override
     public void updateUserClocks(TimeUpdateListRequest request) throws Exception {
         var entities = clockInOutRepository.findAll(Example.of(
-            ClockInOut.builder().
-                user(User.builder().userToken(request.getUserToken()).build())
+            ClockInOut.builder()
+                .user(User.builder().userToken(request.getUserToken()).build())
                 .date(request.getDate())
                 .build()
         ));
@@ -139,5 +139,14 @@ public class UserService implements IUserService {
                 .date(request.getDate()).time(time)
                 .user(user).build()).collect(Collectors.toList());
         clockInOutRepository.saveAllAndFlush(newEntities);
+    }
+
+    @Override
+    public WeeklyClocksDto getClocksByWeek(Integer weekOfYear) {
+        LocalDate date = LocalDate.now()
+            .with(WeekFields.ISO.weekBasedYear(), 2018)
+            .with(WeekFields.ISO.weekOfWeekBasedYear(), weekOfYear)
+            .with(WeekFields.ISO.dayOfWeek(), DayOfWeek.MONDAY.getValue());
+        return null;
     }
 }

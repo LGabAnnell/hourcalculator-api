@@ -1,9 +1,6 @@
 package ch.gab.hourcalculator.api.service.api;
 
-import ch.gab.hourcalculator.api.model.dto.ClockInOutDto;
-import ch.gab.hourcalculator.api.model.dto.TimeRequest;
-import ch.gab.hourcalculator.api.model.dto.TimeUpdateListRequest;
-import ch.gab.hourcalculator.api.model.dto.TimeUpdateRequest;
+import ch.gab.hourcalculator.api.model.dto.*;
 import ch.gab.hourcalculator.api.model.entity.ClockInOut;
 import ch.gab.hourcalculator.api.model.entity.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -29,4 +26,6 @@ public interface IUserService extends UserDetailsService {
     void updateUserClocks(TimeUpdateListRequest request) throws Exception;
 
     List<ClockInOutDto> getAll();
+
+    WeeklyClocksDto getClocksByWeek(Integer weekOfYear);
 }

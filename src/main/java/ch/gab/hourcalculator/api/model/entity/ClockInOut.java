@@ -18,10 +18,10 @@ public class ClockInOut {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "DATE")
+    @Column(name = "CLOCK_DATE")
     private LocalDate date;
 
-    @Column(name = "TIME")
+    @Column(name = "CLOCK_TIME")
     private LocalTime time;
 
     @ManyToOne
