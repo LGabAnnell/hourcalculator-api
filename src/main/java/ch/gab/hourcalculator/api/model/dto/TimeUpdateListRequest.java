@@ -12,6 +12,7 @@ public class TimeUpdateListRequest {
 
     @DateTimeFormat(pattern = "HH:mm")
     private List<LocalTime> times;
+
     private String userToken;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")

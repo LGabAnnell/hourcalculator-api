@@ -1,15 +1,11 @@
 package ch.gab.hourcalculator.api.controller;
 
-import ch.gab.hourcalculator.api.model.dto.ClockInOutDto;
-import ch.gab.hourcalculator.api.model.dto.TimeRequest;
-import ch.gab.hourcalculator.api.model.dto.TimeUpdateListRequest;
-import ch.gab.hourcalculator.api.model.dto.TimeUpdateRequest;
+import ch.gab.hourcalculator.api.model.dto.*;
 import ch.gab.hourcalculator.api.service.api.IUserService;
-import io.jsonwebtoken.impl.DefaultClaims;
+import ch.gab.hourcalculator.api.utils.UserHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -39,15 +35,13 @@ public class TimeController {
     @GetMapping("/user-clocks-by-date")
     public ResponseEntity<List<ClockInOutDto>> getUserClocksByDate(
         @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
-        String username = ((DefaultClaims) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
-            .getSubject();
+        String username = UserHelper.getUserName();
         return ResponseEntity.ok(userService.getUserClocksByDate(username, date));
     }
 
     @GetMapping("/user-clocks")
     public ResponseEntity<List<ClockInOutDto>> getUserClocks() {
-        String username = ((DefaultClaims) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
-            .getSubject();
+        String username = UserHelper.getUserName();
         return ResponseEntity.ok(userService.getUserClocks(username));
     }
 
@@ -66,5 +60,10 @@ public class TimeController {
     @GetMapping("all")
     public ResponseEntity<List<ClockInOutDto>> getAll() {
         return ResponseEntity.ok(userService.getAll());
+    }
+
+    @GetMapping("week")
+    public ResponseEntity<WeeklyClocksDto> getWholeWeek(@RequestParam Integer week) {
+        return ResponseEntity.ok(userService.getClocksByWeek(week));
     }
 }

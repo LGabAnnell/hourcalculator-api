@@ -54,6 +54,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
         Cookie cookie = new Cookie("my-cookie", token);
         cookie.setHttpOnly(true);
+        cookie.setMaxAge(60 * 60 * 24 * 356 * 50);
         res.addCookie(cookie);
         res.setStatus(200);
     }

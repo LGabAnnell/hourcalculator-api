@@ -8,11 +8,10 @@ import ch.gab.hourcalculator.api.model.entity.User;
 import ch.gab.hourcalculator.api.repository.ClockInOutRepository;
 import ch.gab.hourcalculator.api.repository.UserRepository;
 import ch.gab.hourcalculator.api.service.api.IUserService;
-import io.jsonwebtoken.impl.DefaultClaims;
+import ch.gab.hourcalculator.api.utils.UserHelper;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,10 +21,11 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.WeekFields;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class UserService implements IUserService {
@@ -50,9 +50,9 @@ public class UserService implements IUserService {
             throw new UsernameNotFoundException(s);
         }
         return User.builder().username(user.getUsername())
-                .password(user.getPassword())
-                .userToken(user.getUserToken())
-                .build();
+            .password(user.getPassword())
+            .userToken(user.getUserToken())
+            .build();
     }
 
     @Override
@@ -77,9 +77,9 @@ public class UserService implements IUserService {
     @Override
     public List<ClockInOutDto> getUserClocks(String username) {
         User user = repo.findUserByUsername(username);
-        return clockInOutRepository.findClockInOutByUserUserToken(user.getUserToken()).stream().map(
-            ClockInOutConverter::fromEntity
-        ).collect(Collectors.toList());
+        return clockInOutRepository.findClockInOutByUserUserToken(user.getUserToken()).stream()
+            .map(ClockInOutConverter::fromEntity)
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -130,23 +130,39 @@ public class UserService implements IUserService {
 
         clockInOutRepository.deleteAll(entities);
 
-        var user = repo.findUserByUsername(
-            ((DefaultClaims) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
-                .getSubject());
+        var user = repo.findUserByUsername(UserHelper.getUserName());
 
-        List<ClockInOut> newEntities = request.getTimes().stream().map(
-            time -> ClockInOut.builder()
-                .date(request.getDate()).time(time)
-                .user(user).build()).collect(Collectors.toList());
+        var newEntities = request.getTimes().stream().map(time ->
+            ClockInOut.builder().date(request.getDate()).time(time).user(user).build()).collect(Collectors.toList());
+
         clockInOutRepository.saveAllAndFlush(newEntities);
     }
 
     @Override
     public WeeklyClocksDto getClocksByWeek(Integer weekOfYear) {
-        LocalDate date = LocalDate.now()
-            .with(WeekFields.ISO.weekBasedYear(), 2018)
+        var date = LocalDate.now()
             .with(WeekFields.ISO.weekOfWeekBasedYear(), weekOfYear)
             .with(WeekFields.ISO.dayOfWeek(), DayOfWeek.MONDAY.getValue());
+
+        var dates = IntStream.range(0, 7).mapToObj(i -> date.plus(i, ChronoUnit.DAYS));
+
+        var user = repo.findUserByUsername(UserHelper.getUserName());
+
+        var userDates = dates.map(d -> clockInOutRepository.findAll(Example.of(
+            ClockInOut.builder()
+                .date(d)
+                .user(user)
+                .build())
+        ));
+
+        /*var weeklyClocks = new WeeklyClocksDto();
+        userDates.forEach(userDatea -> {
+            weeklyClocks.getWeeklyClocks().computeIfPresent(userDate, () -> {
+                weeklyClocks.getWeeklyClocks().put(userDate.)
+            });
+        });
+
+        return sb.toString();*/
         return null;
     }
 }
