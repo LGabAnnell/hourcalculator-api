@@ -23,9 +23,12 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.WeekFields;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Service
 public class UserService implements IUserService {
@@ -144,25 +147,20 @@ public class UserService implements IUserService {
             .with(WeekFields.ISO.weekOfWeekBasedYear(), weekOfYear)
             .with(WeekFields.ISO.dayOfWeek(), DayOfWeek.MONDAY.getValue());
 
-        var dates = IntStream.range(0, 7).mapToObj(i -> date.plus(i, ChronoUnit.DAYS));
+        Stream<LocalDate> dates = IntStream.range(0, 7).mapToObj(i -> date.plus(i, ChronoUnit.DAYS));
 
         var user = repo.findUserByUsername(UserHelper.getUserName());
 
-        var userDates = dates.map(d -> clockInOutRepository.findAll(Example.of(
-            ClockInOut.builder()
-                .date(d)
-                .user(user)
-                .build())
-        ));
-
-        /*var weeklyClocks = new WeeklyClocksDto();
-        userDates.forEach(userDatea -> {
-            weeklyClocks.getWeeklyClocks().computeIfPresent(userDate, () -> {
-                weeklyClocks.getWeeklyClocks().put(userDate.)
-            });
+        var weeklyClocks = new WeeklyClocksDto();
+        dates.forEach(d -> {
+            List<ClockInOutDto> clocks = clockInOutRepository.findAll(Example.of(
+                ClockInOut.builder().date(d).user(user).build())
+            ).stream().map(ClockInOutConverter::fromEntity).collect(Collectors.toList());
+            if (clocks.size() > 0) {
+                weeklyClocks.getWeeklyClocks().put(d, clocks);
+            }
         });
 
-        return sb.toString();*/
-        return null;
+        return weeklyClocks;
     }
 }
