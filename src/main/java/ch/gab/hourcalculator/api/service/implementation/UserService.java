@@ -10,6 +10,8 @@ import ch.gab.hourcalculator.api.repository.UserRepository;
 import ch.gab.hourcalculator.api.service.api.IUserService;
 import ch.gab.hourcalculator.api.utils.UserHelper;
 import net.bytebuddy.utility.RandomString;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,9 +25,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.WeekFields;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -152,14 +152,32 @@ public class UserService implements IUserService {
         var user = repo.findUserByUsername(UserHelper.getUserName());
 
         var weeklyClocks = new WeeklyClocksDto();
+        var accumulatorArray = new ArrayList<JSONObject>();
         dates.forEach(d -> {
             List<ClockInOutDto> clocks = clockInOutRepository.findAll(Example.of(
                 ClockInOut.builder().date(d).user(user).build())
             ).stream().map(ClockInOutConverter::fromEntity).collect(Collectors.toList());
-            if (clocks.size() > 0) {
-                weeklyClocks.getWeeklyClocks().put(d, clocks);
+            try {
+                JSONObject obj = new JSONObject();
+                if (clocks.size() > 0) {
+                    obj.put("date", d.format(DateTimeFormatter.ofPattern("dd.MM")));
+                    IntStream.range(0, clocks.size()).forEach(i -> {
+                        String name = i % 2 == 0 ? i + "entree" + i : i + "sortie" + i;
+                        try {
+                            obj.put(name,
+                                clocks.get(i).getTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                    accumulatorArray.add(obj);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         });
+
+        weeklyClocks.setWeeklyClocks(accumulatorArray.toString());
 
         return weeklyClocks;
     }
