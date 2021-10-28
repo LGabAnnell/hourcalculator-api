@@ -25,7 +25,10 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.WeekFields;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -66,7 +69,6 @@ public class UserService implements IUserService {
 
         UUID uuid = UUID.randomUUID();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setUserToken(RandomString.make(10));
         user.setUserToken(uuid.toString());
         repo.save(user);
     }
@@ -123,7 +125,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void updateUserClocks(TimeUpdateListRequest request) throws Exception {
+    public void updateUserClocks(TimeUpdateListRequest request) {
         var entities = clockInOutRepository.findAll(Example.of(
             ClockInOut.builder()
                 .user(User.builder().userToken(request.getUserToken()).build())
@@ -164,15 +166,14 @@ public class UserService implements IUserService {
                     IntStream.range(0, clocks.size()).forEach(i -> {
                         String name = i % 2 == 0 ? i + "entree" + i : i + "sortie" + i;
                         try {
-                            obj.put(name,
-                                clocks.get(i).getTime().format(DateTimeFormatter.ofPattern("HH:mm")));
-                        } catch (Exception e) {
+                            obj.put(name, clocks.get(i).getTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+                        } catch (JSONException e) {
                             throw new RuntimeException(e);
                         }
                     });
                     accumulatorArray.add(obj);
                 }
-            } catch (Exception e) {
+            } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
         });
@@ -181,4 +182,5 @@ public class UserService implements IUserService {
 
         return weeklyClocks;
     }
+
 }
