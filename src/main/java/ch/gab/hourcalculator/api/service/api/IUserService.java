@@ -25,7 +25,5 @@ public interface IUserService extends UserDetailsService {
 
     void updateUserClocks(TimeUpdateListRequest request) throws Exception;
 
-    List<ClockInOutDto> getAll();
-
     WeeklyClocksDto getClocksByWeek(Integer weekOfYear);
 }

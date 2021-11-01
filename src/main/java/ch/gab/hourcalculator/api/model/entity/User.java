@@ -1,19 +1,15 @@
 package ch.gab.hourcalculator.api.model.entity;
 
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 @Entity
 @Table(name = "USERS")
-@EqualsAndHashCode
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor

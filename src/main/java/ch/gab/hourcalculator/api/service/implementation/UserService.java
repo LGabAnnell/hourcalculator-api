@@ -119,12 +119,6 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public List<ClockInOutDto> getAll() {
-        return clockInOutRepository.findAll().stream().map(ClockInOutConverter::fromEntity)
-            .collect(Collectors.toList());
-    }
-
-    @Override
     public void updateUserClocks(TimeUpdateListRequest request) {
         var entities = clockInOutRepository.findAll(Example.of(
             ClockInOut.builder()

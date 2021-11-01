@@ -57,11 +57,6 @@ public class TimeController {
         return ResponseEntity.ok(null);
     }
 
-    @GetMapping("all")
-    public ResponseEntity<List<ClockInOutDto>> getAll() {
-        return ResponseEntity.ok(userService.getAll());
-    }
-
     @GetMapping("week")
     public ResponseEntity<WeeklyClocksDto> getWholeWeek(@RequestParam Integer week) {
         return ResponseEntity.ok(userService.getClocksByWeek(week));
