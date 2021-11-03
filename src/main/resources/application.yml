@@ -9,3 +9,7 @@ gab:
 
 spring.jpa:
   generate-ddl: true
+
+spring:
+  profiles:
+    active: prod
