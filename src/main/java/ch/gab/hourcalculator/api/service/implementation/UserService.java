@@ -9,7 +9,6 @@ import ch.gab.hourcalculator.api.repository.ClockInOutRepository;
 import ch.gab.hourcalculator.api.repository.UserRepository;
 import ch.gab.hourcalculator.api.service.api.IUserService;
 import ch.gab.hourcalculator.api.utils.UserHelper;
-import net.bytebuddy.utility.RandomString;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
