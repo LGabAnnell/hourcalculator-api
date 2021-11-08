@@ -9,6 +9,7 @@ import ch.gab.hourcalculator.api.repository.ClockInOutRepository;
 import ch.gab.hourcalculator.api.repository.UserRepository;
 import ch.gab.hourcalculator.api.service.api.IUserService;
 import ch.gab.hourcalculator.api.utils.UserHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+@Slf4j
 @Service
 public class UserService implements IUserService {
     @Autowired
@@ -94,7 +96,7 @@ public class UserService implements IUserService {
             .time(LocalTime.parse(request.getTime(), DateTimeFormatter.ofPattern("HH.mm")))
             .user(user)
             .build();
-
+        log.info("Inserted clock" + clockInOut.toString());
         clockInOutRepository.save(clockInOut);
     }
 
