@@ -56,6 +56,7 @@ public class UserService implements IUserService {
         if (user == null) {
             throw new UsernameNotFoundException(s);
         }
+
         return User.builder().username(user.getUsername())
             .password(user.getPassword())
             .userToken(user.getUserToken())
