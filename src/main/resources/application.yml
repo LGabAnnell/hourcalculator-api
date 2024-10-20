@@ -10,5 +10,5 @@ gab:
 spring:
   jpa:
     generate-ddl: true
-  profiles:
-    active: prod
+  application:
+    name: hourcalculator-api

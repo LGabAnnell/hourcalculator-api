@@ -17,11 +17,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final String KEY;
-    private AuthenticationManager authManager;
+    private final AuthenticationManager authManager;
 
     public AuthenticationFilter(AuthenticationManager authManager, String KEY) {
         super(authManager);
@@ -44,7 +46,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain,
                                             Authentication auth) {
-        Date exp = new Date(System.currentTimeMillis() + 432_000_000L /* five days */);
+        Date exp = new Date(System.currentTimeMillis() + 5 /* five days */);
         Claims claims = Jwts.claims()
                 .setSubject(((User) auth.getPrincipal()).getUsername());
         String token = Jwts.builder().setClaims(claims)
@@ -54,7 +56,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
         Cookie cookie = new Cookie("my-cookie", token);
         cookie.setHttpOnly(true);
-        cookie.setMaxAge(60 * 60 * 24 * 356 * 50);
+        cookie.setMaxAge((int) Duration.of(60, ChronoUnit.DAYS).toMillis());
         res.addCookie(cookie);
         res.setStatus(200);
     }

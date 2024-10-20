@@ -14,10 +14,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 @Slf4j
 @Service
 public class UserService implements IUserService {
+
     @Autowired
     private UserRepository repo;
 
@@ -47,15 +48,12 @@ public class UserService implements IUserService {
 
     @Override
     public User getUserByUserName(String userName) {
-        return repo.findUserByUsername(userName);
+        return repo.findUserByUsername(userName).orElseThrow(() -> new UsernameNotFoundException("Username not found"));
     }
 
     @Override
-    public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
-        User user = repo.findUserByUsername(s);
-        if (user == null) {
-            throw new UsernameNotFoundException(s);
-        }
+    public User loadUserByUsername(String s) throws UsernameNotFoundException {
+        User user = repo.findUserByUsername(s).orElseThrow(() -> new UsernameNotFoundException(s));
 
         return User.builder().username(user.getUsername())
             .password(user.getPassword())
@@ -65,7 +63,7 @@ public class UserService implements IUserService {
 
     @Override
     public void createUser(User user) throws Exception {
-        if (repo.findUserByUsername(user.getUsername()) != null) {
+        if (repo.findUserByUsername(user.getUsername()).isPresent()) {
             throw new EntityAlreadyExistsException("User already exists");
         }
 
@@ -83,10 +81,10 @@ public class UserService implements IUserService {
 
     @Override
     public List<ClockInOutDto> getUserClocks(String username) {
-        User user = repo.findUserByUsername(username);
+        User user = repo.findUserByUsername(username).orElseThrow(() ->
+                new UsernameNotFoundException("Username not found"));
         return clockInOutRepository.findClockInOutByUserUserToken(user.getUserToken()).stream()
-            .map(ClockInOutConverter::fromEntity)
-            .collect(Collectors.toList());
+            .map(ClockInOutConverter::fromEntity).toList();
     }
 
     @Override
@@ -103,12 +101,13 @@ public class UserService implements IUserService {
 
     @Override
     public List<ClockInOutDto> getUserClocksByDate(String username, LocalDate date) {
-        User user = repo.findUserByUsername(username);
+        User user = repo.findUserByUsername(username).orElseThrow(() ->
+                new UsernameNotFoundException("Username not found"));
         List<ClockInOut> clocks = clockInOutRepository.findAll(Example.of(
             ClockInOut.builder().user(user).date(date).build()
         ));
         return clocks.stream().map(ClockInOutConverter::fromEntity)
-            .sorted(Comparator.comparing(ClockInOutDto::getTime)).collect(Collectors.toList());
+            .sorted(Comparator.comparing(ClockInOutDto::getTime)).toList();
     }
 
     @Override
@@ -121,6 +120,7 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Transactional
     public void updateUserClocks(TimeUpdateListRequest request) {
         var entities = clockInOutRepository.findAll(Example.of(
             ClockInOut.builder()
@@ -131,7 +131,8 @@ public class UserService implements IUserService {
 
         clockInOutRepository.deleteAll(entities);
 
-        var user = repo.findUserByUsername(UserHelper.getUserName());
+        var user = repo.findUserByUsername(UserHelper.getUserName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         var newEntities = request.getTimes().stream().map(time ->
             ClockInOut.builder().date(request.getDate()).time(time).user(user).build()).collect(Collectors.toList());
@@ -147,14 +148,15 @@ public class UserService implements IUserService {
 
         Stream<LocalDate> dates = IntStream.range(0, 7).mapToObj(i -> date.plus(i, ChronoUnit.DAYS));
 
-        var user = repo.findUserByUsername(UserHelper.getUserName());
+        var user = repo.findUserByUsername(UserHelper.getUserName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         var weeklyClocks = new WeeklyClocksDto();
         var accumulatorArray = new ArrayList<JSONObject>();
         dates.forEach(d -> {
             List<ClockInOutDto> clocks = clockInOutRepository.findAll(Example.of(
-                ClockInOut.builder().date(d).user(user).build())
-            ).stream().map(ClockInOutConverter::fromEntity).collect(Collectors.toList());
+                    ClockInOut.builder().date(d).user(user).build())
+            ).stream().map(ClockInOutConverter::fromEntity).toList();
             try {
                 JSONObject obj = new JSONObject();
                 if (clocks.size() > 0) {

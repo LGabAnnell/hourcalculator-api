@@ -38,7 +38,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                     .logout()
                     .logoutSuccessHandler((req, res, auth) -> {
-                        res.addCookie(new Cookie("my-cookie", null));
+                        Cookie cookie = new Cookie("my-cookie", null);
+                        cookie.setHttpOnly(true);
+                        cookie.setMaxAge(0);
+                        res.addCookie(cookie);
                         objectMapper.writeValue(res.getWriter(), "User is logged out!");
                     })
                 .and()

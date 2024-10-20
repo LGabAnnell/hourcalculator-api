@@ -8,8 +8,7 @@ import java.time.LocalTime;
 
 @Entity
 @Table(name = "CLOCK_IN_OUT")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -25,6 +24,5 @@ public class ClockInOut {
     private LocalTime time;
 
     @ManyToOne
-    @JoinColumn(name = "USER_TOKEN", referencedColumnName = "USER_TOKEN")
     private User user;
 }

@@ -17,11 +17,10 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Optional;
 
 public class AuthorizationFilter extends BasicAuthenticationFilter {
     private final String KEY;
-
-    private AuthenticationManager authenticationManager;
 
     public AuthorizationFilter(AuthenticationManager authenticationManager, String KEY) {
         super(authenticationManager);
@@ -30,21 +29,33 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 
     @Override
     public void doFilterInternal(HttpServletRequest request,
-                                 HttpServletResponse respone,
+                                 HttpServletResponse response,
                                  FilterChain chain) throws IOException, ServletException {
 
-        String token = request.getCookies() != null ? Arrays.stream(request.getCookies())
-                .filter(cookie -> cookie.getName().equals("my-cookie"))
-                .map(Cookie::getValue).findFirst().orElse(null) : null;
+        String token = Optional.ofNullable(request.getCookies())
+                .flatMap(r ->
+                        Arrays.stream(r)
+                                .filter(cookie -> cookie.getName().equals("my-cookie"))
+                                .map(Cookie::getValue).findFirst()
+                )
+                .orElse(null);
 
         if (token == null) {
-            chain.doFilter(request, respone);
+            chain.doFilter(request, response);
             return;
         }
 
         UsernamePasswordAuthenticationToken authentication = authenticate(token);
+
+        if (authentication == null) {
+            Cookie cookie = new Cookie("my-cookie", null);
+            cookie.setMaxAge(0);
+            cookie.setHttpOnly(true);
+            response.addCookie(cookie);
+        }
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        chain.doFilter(request, respone);
+        chain.doFilter(request, response);
     }
 
     private UsernamePasswordAuthenticationToken authenticate(String token) {

@@ -15,4 +15,8 @@ public class ClockInOutDto {
     private LocalDate date;
     private LocalTime time;
     private Long id;
+
+    public Object toLocalDate() {
+        return date;
+    }
 }

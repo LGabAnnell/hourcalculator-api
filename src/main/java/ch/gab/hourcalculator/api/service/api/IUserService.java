@@ -1,9 +1,10 @@
 package ch.gab.hourcalculator.api.service.api;
 
 import ch.gab.hourcalculator.api.model.dto.*;
-import ch.gab.hourcalculator.api.model.entity.ClockInOut;
+
 import ch.gab.hourcalculator.api.model.entity.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.time.LocalDate;
 import java.util.List;
